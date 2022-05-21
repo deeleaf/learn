@@ -1,0 +1,370 @@
+#include <iostream>
+#include <iomanip>
+#include <time.h>
+using namespace std;
+
+class fifo {
+	int n, m, count,pQ;
+	double ratePage;
+	int* randStr, * page,*pageQ;
+public:
+	//实现a()的手动输入，a(m,n)的默认输入
+	fifo(){										//手动输入串
+		count = 0; ratePage = 0; pQ = 0;
+		cout << "请输入随机串的长度n：" << endl;
+		cin >> n;
+		cout << "请输入页框大小m(3~7)：" << endl;
+		cin >> m;
+		randStr = new int[n];
+		page = new int[m];
+		pageQ = new int[n];
+		for (int i = 0; i < m; i++) {
+			page[i] = 0;
+		}
+		for (int i = 0; i < n; i++) {
+			randStr[i] = rand() % 10;
+		}
+	}
+	fifo(int n, int m):n(n),m(m) {				//串长n，页大小m；
+		count = 0; ratePage = 0; pQ = 0;
+		//int x[20] = {7,0,1,2,0,3,0,4,2,3,0,3,2,1,2,0,1,7,0,1,};
+		//int x[] = { 1,2,3,4,1,2,5,1,2,3,4,5 };//m=3 huo 4
+		/*randStr = new int[sizeof(x)];
+		for (int i = 0; i < sizeof(x); i++) {
+			randStr[i] = x[i];
+		}*/
+		randStr = new int[n];
+		page = new int[m];
+		pageQ = new int[n];
+		for (int i = 0; i < m; i++) {
+			page[i] = -1;
+		}
+		
+		for (int i = 0; i < n; i++) {
+			randStr[i] = rand() % 10;
+		}
+	}
+
+	void work() {
+		int j = 0;
+		for (int i = 0; i < n; i++) {
+			if (page[j] == -1) {
+				page[j] = randStr[i];
+				count++;
+			}
+			else {
+				for (int k = 0; k < m; k++) {
+					if (page[k] == randStr[i]) { goto flag; }
+				}
+				page[j] = randStr[i];
+				pageQ[pQ] = j;			//置换出的页序号；
+				pQ++;
+				count++;
+			}
+			j++;
+		flag:
+			if (j == m) j = 0;
+		}
+		ratePage = double(count) / n;
+	}
+	void print() {
+		cout << "随机串：";
+		for (int i = 0; i < n; i++) {
+			cout << randStr[i] << ' ';
+		}
+		cout <<"串长度为："<<n << endl;//换行
+		cout << "页框大小："<< m<< endl;
+		cout << "缺页次数：" << count<< endl;
+		cout << "置换出页序号：";
+		for (int i = 0; i < pQ; i++) {
+			cout << pageQ[i] << " ";
+		}
+		cout << endl;//换行
+		cout << ratePage << endl;
+	}
+	void p() {
+		int x[20] = { 7,0,1,2,0,3,0,4,2,3,0,3,2,1,2,0,1,7,0,1 };
+		int *r = new int[20];
+		for (int i = 0; i < 20; i++) {
+			r[i] = x[i];
+		}
+		for (int i = 0; i < 20; i++) {
+			cout << r[i] << ' ';
+		}
+	}
+};
+class FIFO {
+	int n, m, count, pQ;
+	double ratePage;
+	int** x;
+public:
+	FIFO() {
+		srand(time(NULL));
+		count = 0; ratePage = 0; pQ = 0;
+		n = rand() % 10 + 10;//20以内串大小
+		m = rand() % 4 + 3;//8以页框大小
+
+		x = new int*[m+2];//第一行随机串，最后一行换出也，中间过程
+		x[0] = new int[n];
+		for (int i = 0; i < n; i++) {
+			x[0][i] = rand() % 10;
+		}
+
+		for (int i = 1; i < m + 2; i++) {
+			x[i] = new int[n];
+			for (int j = 0; j < n; j++) {
+				x[i][j] = -1;
+			}
+		}
+	} 
+	void work() {//实现
+		int *z;
+		z = new int[m];
+		for (int i = 0; i < m; i++) {
+			z[i] = -1;
+		}
+		int j = 0;
+		int counter = 0;
+		for (int i = 0; i < n; i++) {
+			if (z[j] == -1) {
+				z[j] = x[0][i];
+				count++;
+			}
+			else {
+				for (int k = 0; k < m; k++) {
+					if (z[k] == x[0][i]) { goto flag; }
+				}
+				z[j] = x[0][i];
+				x[m+1][i] = j;			//置换出的页序号；
+				//pQ++;
+				count++;
+			}
+			j++;
+		flag:
+			for (int f = 0; f < m; f++) {
+				x[f+1][counter] = z[f];
+			}
+			counter++;
+			if (j == m) j = 0;
+		}
+		ratePage = double(count) / n;
+	}
+	void print() {
+		cout << "随机串：\n" << setw(3);
+		for (int i = 0; i < n; i++) {
+			cout << x[0][i] << setw(3);
+		}
+		cout << "\n串长度为：" << n << "  ";//换行
+		cout << "页框大小：" << m << endl;
+		cout << "\n执行过程如下：" << endl <<setw(3);
+		for (int i = 1; i < m + 1; i++) {
+			for (int j = 0; j < n; j++) {
+				cout << x[i][j] << setw(3);
+			}
+			cout << endl;
+		}
+		
+		cout << "置换出页序号："<<endl<<setw(3);
+		for (int i = 0; i < n; i++) {
+			cout << x[m+1][i] << setw(3);
+		}
+		cout << endl;
+		cout << "缺页次数：" << count << endl;
+		cout <<"缺页率：" << ratePage << endl;
+	}
+};
+class OPT {
+	int n, m, count, pQ;
+	double ratePage;
+	int** x;
+public:
+	OPT() {
+		srand(time(NULL));
+		count = 0; ratePage = 0; pQ = 0;
+		n = rand() % 10 + 10;//20以内串大小
+		m = rand() % 4 + 3;//8以页框大小
+
+		x = new int* [m + 2];//第一行随机串，最后一行换出也，中间过程
+		x[0] = new int[n];
+		for (int i = 0; i < n; i++) {
+			x[0][i] = rand() % 10;
+		}
+		for (int i = 1; i < m + 2; i++) {
+			x[i] = new int[n];
+			for (int j = 0; j < n; j++) {
+				x[i][j] = -1;
+			}
+		}
+	}
+	void work() {//实现
+		int* z;
+		z = new int[m];
+		for (int i = 0; i < m; i++) {
+			z[i] = -1;
+		}
+		int j = 0;
+		int counter = 0;
+		for (int i = 0; i < n; i++) {
+			if (z[j] == -1) {
+				z[j] = x[0][i];
+				count++;
+			}
+			else {
+				for (int k = 0; k < m; k++) {
+					if (z[k] == x[0][i]) { goto flag; }
+				}
+				//zno存每个页框未来出现距离现在的大小 {以下标大小判断}
+				int *zno=new int[m];
+				for (int f = 0; f < m; f++) {
+					zno[f] = 999;
+					for (int k = i; k < n; k++) {
+						if (z[f] != x[0][k]){ }
+						else {
+							zno[f] = k;
+						}
+					}
+				}
+				int max = 0;
+				for (int f = 1; f < m; f++) {
+					if (zno[max] < zno[f]) max = f;
+				}
+				z[max] = x[0][i];			//置换出的页;
+				x[m + 1][i] = max;			//置换出的页序号；
+				count++;
+			}
+			j++;
+		flag:
+			for (int f = 0; f < m; f++) {//将该次循环的页框情况记录
+				x[f + 1][counter] = z[f];
+			}
+			counter++;
+			if (j == m) j = 0;
+		}
+		ratePage = double(count) / n;
+	}
+	void print() {
+		cout << "随机串：\n" << setw(3);
+		for (int i = 0; i < n; i++) {
+			cout << x[0][i] << setw(3);
+		}
+		cout << "\n串长度为：" << n << "  ";//换行
+		cout << "页框大小：" << m << endl;
+		cout << "\n执行过程如下：" << endl << setw(3);
+		for (int i = 1; i < m + 1; i++) {
+			for (int j = 0; j < n; j++) {
+				cout << x[i][j] << setw(3);
+			}
+			cout << endl;
+		}
+		cout << "置换出页序号：" << endl << setw(3);
+		for (int i = 0; i < n; i++) {
+			cout << x[m + 1][i] << setw(3);
+		}
+		cout << endl;
+		cout << "缺页次数：" << count << endl;
+		cout << "缺页率：" << ratePage << endl;
+	}
+};
+class LRU {
+	int n, m, count;
+	double ratePage;
+	int** x;
+public:
+	LRU() {
+		srand(time(NULL));
+		count = 0; ratePage = 0; 
+		n = rand() % 10 + 10;//10,20以内串大小
+		m = rand() % 4 + 3;//3~7以页框大小
+
+		x = new int* [m + 2];//第一行随机串，最后一行换出也，中间过程
+		x[0] = new int[n];
+		for (int i = 0; i < n; i++) {
+			x[0][i] = rand() % 10;
+		}
+		for (int i = 1; i < m + 2; i++) {
+			x[i] = new int[n];
+			for (int j = 0; j < n; j++) {
+				x[i][j] = -1;
+			}
+		}
+	}
+	void work() {
+		int* z;//页框表
+		z = new int[m];
+		for (int i = 0; i < m; i++) {
+			z[i] = -1;
+		}
+		int j = 0;//控制页框表内循环
+		int counter = 0;//二维表x的页框数组按列更新
+		for (int i = 0; i < n; i++) {
+			if (z[j] == -1) {
+				z[j] = x[0][i];
+				count++;
+			}
+			else {
+				for (int k = 0; k < m; k++) {//排除已有页框
+					if (z[k] == x[0][i]) { goto flag; }
+				}
+				//zno存每个页框过去最近一次出现距离现在的大小 {以下标大小判断}
+				int* zno = new int[m];//存放页框每个条目与最近使用的距离下标，与z一一对应
+				for (int f = 0; f < m; f++) {
+					zno[f] = -2;
+					for (int k = i-1; k >=0; k--) {
+						if (z[f] != x[0][k]) { continue;}
+						else { 
+							zno[f] = k; 
+							break;
+						}
+					}
+				}
+				int min = 0;
+				for (int f = 1; f < m; f++) {
+					if (zno[min] > zno[f]) min = f;//坐标越小距离当下距离月远
+				}
+				z[min] = x[0][i];			//置换出的页;
+				x[m + 1][i] = min;			//置换出的页序号；
+				count++;
+				}
+				j++;
+		flag:
+			for (int f = 0; f < m; f++) {//将该次循环的页框情况记录
+				x[f + 1][counter] = z[f];
+			}
+			counter++;
+			if (j == m) j = 0;//循环数组
+		}
+		ratePage = double(count) / n;
+	}
+	void print() {
+		cout << "随机串：\n" << setw(3);
+		for (int i = 0; i < n; i++) {
+			cout << x[0][i] << setw(3);
+		}
+		cout << "\n串长度为：" << n << "  ";//换行
+		cout << "页框大小：" << m << endl;
+		cout << "\n执行过程如下：" << endl << setw(3);
+		for (int i = 1; i < m + 1; i++) {
+			for (int j = 0; j < n; j++) {
+				cout << x[i][j] << setw(3);
+			}
+			cout << endl;
+		}
+		cout << "置换出页序号：" << endl << setw(3);
+		for (int i = 0; i < n; i++) {
+			cout << x[m + 1][i] << setw(3);
+		}
+		cout << endl;
+		cout << "缺页次数：" << count << endl;
+		cout << "缺页率：" << ratePage << endl;
+	}
+};
+int main() {
+		//实现a 的自动随机生成m，n
+	//FIFO a;
+	OPT a;
+	//LRU a;
+	a.work();
+	a.print();
+
+	return 0;
+}
